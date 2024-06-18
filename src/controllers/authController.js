@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const User = require('../models/user');
+const ServicerProfile = require('../models/servicerProfile');
 const validatorMiddleware = require('../middleware/authMiddleware');
 const { validationResult } = require('express-validator');
 
@@ -11,16 +12,25 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
     const errors = validationResult(req);
     if (!errors) return res.status(400).json({ errors });
 
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, bio, servicesOffered } = req.body;
 
     try {
         const user = await User.findOne({ email })
         if (user) return res.status(400).json({ msg: 'Email is already registered.' });
 
         const newUser = await User.create({ username, email, password, role });
-        await newUser.save()
+        const savedUser = await newUser.save()
+        let servicerProfile = null;
+        if(role === 'servicer'){
+             servicerProfile = await ServicerProfile.create({
+                user: savedUser._id,
+                bio,
+                servicesOffered
+            });
+            await servicerProfile.save();
+        }
         const token = jwt.sign({ newUser: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
+        res.status(201).json({ token, servicerProfile });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

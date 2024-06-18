@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/authMiddleware');
+const middleware = require('../middleware/authMiddleware');
 const ServiceRequest = require('../models/serviceRequest');
 
-router.use(auth);
+router.use(middleware.auth);
 
 router.post('/create', async (req, res) => {
     try {
