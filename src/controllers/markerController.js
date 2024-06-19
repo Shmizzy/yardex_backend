@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Marker = require('../models/marker');
+const ServicerProfile = require('../models/servicerProfile');
 const { isServicer } = require('../middleware/authMiddleware');
 
 router.post('/create', isServicer, async (req, res) => {
@@ -21,6 +22,17 @@ router.get('/', async (req, res) => {
     try {
         const markers = await Marker.find({});
         res.status(200).json(markers);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+})
+
+router.get('/profile/:userId', async (req, res) => {
+    try {
+        const fetchProfile = await ServicerProfile.findOne({ user: req.params.userId });
+        if (!fetchProfile)
+            res.status(404).json({ message: 'Profile not found' });
+        res.status(200).json({ fetchProfile });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -49,9 +61,9 @@ router.delete('/delete/:id', isServicer, async (req, res) => {
         const deletedMarker = await Marker.findOneAndDelete(
             { _id: req.params.id, servicer: req.user.id }
         );
-        if(!deletedMarker) 
-            return res.status(404).json({message: 'Marker not found'});
-        res.status(200).json({message: 'Marker successfully deleted'});
+        if (!deletedMarker)
+            return res.status(404).json({ message: 'Marker not found' });
+        res.status(200).json({ message: 'Marker successfully deleted' });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
