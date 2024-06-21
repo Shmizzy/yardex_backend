@@ -2,11 +2,15 @@ const mongoose = require('mongoose');
 
 
 const servicerProfileSchema = new mongoose.Schema({
+    servicerName: {
+        type: String,
+        required: true
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
+        ref: 'User',
         required: true,
-        unique: true // Ensures one-to-one relationship with User model
+        unique: true
     },
     bio: {
         type: String,
@@ -25,7 +29,25 @@ const servicerProfileSchema = new mongoose.Schema({
             type: Number,
             default: 0
         }
+    },
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+    status: {
+        type: String,
+        enum: ['available', 'busy', 'offline'],
+        default: 'available'
     }
 });
+
+servicerProfileSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('ServicerProfile', servicerProfileSchema);

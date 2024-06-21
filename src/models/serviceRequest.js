@@ -20,22 +20,15 @@ const serviceRequestSchema = new mongoose.Schema({
         },
         preferredTime: {
             type: Date,
-            required: true
+            required: false,
         },
         instructions: {
             type: String,
             required: false
         },
-        location: {
-            type: {
-                type: String,
-                enum: ['Point'],
-                required: true
-            },
-            coordinates: {
-                type: [Number],
-                required: true
-            }
+        address: {
+            type: String,
+            required: true
         },
     },
     status: {
@@ -44,8 +37,6 @@ const serviceRequestSchema = new mongoose.Schema({
         default: 'pending'
     }
 })
-
-serviceRequestSchema.index({ 'location.coordinates': '2dsphere' });
 
 
 module.exports = mongoose.model('ServiceRequest', serviceRequestSchema);

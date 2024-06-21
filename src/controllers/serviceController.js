@@ -2,21 +2,25 @@ const express = require('express');
 const router = express.Router();
 const middleware = require('../middleware/authMiddleware');
 const ServiceRequest = require('../models/serviceRequest');
+const io = require('../../app');
 
 router.use(middleware.auth);
 
 router.post('/create', async (req, res) => {
     try {
-        const {  servicerId, serviceType, preferredTime,
-            instructions, location } = req.body;
+        if (!req.user) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+        const { servicer, serviceType, preferredTime,
+            instructions, address } = req.body;
         const newServiceRequest = await ServiceRequest.create({
             user: req.user.id,
-            servicer: servicerId,
+            servicer: servicer,
             serviceDetails: {
                 serviceType,
                 preferredTime,
                 instructions,
-                location
+                address
             },
             status: 'pending'
         });
@@ -25,7 +29,6 @@ router.post('/create', async (req, res) => {
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
-
 });
 
 router.put('/:id', async (req, res) => {
@@ -50,7 +53,7 @@ router.get('/', async (req, res) => {
 
         res.status(200).json(serviceRequests);
     } catch (error) {
-        res.status(400).json({message: error.message});
+        res.status(400).json({ message: error.message });
     }
 });
 

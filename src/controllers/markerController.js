@@ -4,6 +4,7 @@ const Marker = require('../models/marker');
 const ServicerProfile = require('../models/servicerProfile');
 const { isServicer } = require('../middleware/authMiddleware');
 
+
 router.post('/create', isServicer, async (req, res) => {
     try {
         const newMarker = await Marker.create({

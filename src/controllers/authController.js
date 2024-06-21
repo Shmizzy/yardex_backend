@@ -5,6 +5,8 @@ const User = require('../models/user');
 const ServicerProfile = require('../models/servicerProfile');
 const validatorMiddleware = require('../middleware/authMiddleware');
 const { validationResult } = require('express-validator');
+const io = require('../../app');
+
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
     const errors = validationResult(req);
     if (!errors) return res.status(400).json({ errors });
 
-    const { username, email, password, role, bio, servicesOffered } = req.body;
+    const { username, email, password, role, bio, servicesOffered, location, servicerStatus } = req.body;
 
     try {
         const user = await User.findOne({ email })
@@ -21,16 +23,19 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
         const newUser = await User.create({ username, email, password, role });
         const savedUser = await newUser.save()
         let servicerProfile = null;
-        if(role === 'servicer'){
-             servicerProfile = await ServicerProfile.create({
+        if (role === 'servicer') {
+            servicerProfile = await ServicerProfile.create({
+                servicerName: username,
                 user: savedUser._id,
                 bio,
-                servicesOffered
+                servicesOffered,
+                location,
+                servicerStatus
             });
-            await servicerProfile.save();
+            const savedServicer = await servicerProfile.save();
         }
-        const token = jwt.sign({ newUser: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token, servicerProfile });
+        const token = jwt.sign({ user: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(201).json({ token, id: savedUser._id });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -46,7 +51,12 @@ router.post('/login', [validatorMiddleware.loginValidator], async (req, res) => 
         const matchedPassword = await bcrypt.compare(password, user.password);
         if (!matchedPassword) return res.status(400).json({ msg: 'Invalid Credentials' });
         const token = jwt.sign({ user: { id: user._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
+        let servicerProfile;
+        if (user.role === 'servicer') {
+            servicerProfile = await ServicerProfile.findOne({user: user._id});
+            return res.status(201).json({ token, id: user._id, servicerId: servicerProfile._id});
+        }
+        res.status(201).json({ token, id: user._id});
     } catch (error) {
         res.status(500).json({ error: error.message })
     }

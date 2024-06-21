@@ -17,7 +17,7 @@ const markerSchema = new mongoose.Schema({
             required: true
         }
     },
-    status: {
+    servicerStatus: {
         type: String,
         enum: ['available', 'busy', 'offline'],
         default: 'available'
