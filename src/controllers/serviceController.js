@@ -12,7 +12,7 @@ router.post('/create', async (req, res) => {
             return res.status(401).json({ message: 'Authentication required' });
         }
         const { serviceType, preferredTime,
-            instructions, address } = req.body.serviceDetails;
+            instructions, address, location } = req.body.serviceDetails;
         const newServiceRequest = await ServiceRequest.create({
             user: req.user.id,
             servicer: req.body.servicer,
@@ -22,7 +22,8 @@ router.post('/create', async (req, res) => {
                 serviceType,
                 preferredTime,
                 instructions,
-                address
+                address,
+                location
             },
             status: 'pendingServicerAcceptance',
         });

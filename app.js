@@ -190,11 +190,22 @@ io.on('connection', (socket) => {
     socket.on('update_request', (updateRequest) => {
         io.emit('request_updated', updateRequest)
     });
+    socket.on('arrived_to_location', async (serviceData) => {
+        try {
+            const service = ServiceRequest.findById(serviceData._id);
+            service.serviceDetails.serviceStatus = 'working';
+            service.save();
+            console.log('this is the state right now', service.serviceDetails.serviceStatus);
+            io.to(`chat_room_${serviceData.user}_${serviceData.servicer}`).emit('update_service_state', service);
+        } catch (error) {
+            console.log('error updating service progress ->', error);
+        }
+    });
     socket.on('delete_request', async (requestData) => {
         try {
             console.log('this is the data ', requestData);
             const deletedRequest = await ServiceRequest.findByIdAndDelete(requestData._id);
-            const deleteGroupChat = await GroupChat.findOneAndDelete({chatRoomId: `chat_room_${requestData.user}_${requestData.servicer}`})
+            const deleteGroupChat = await GroupChat.findOneAndDelete({ chatRoomId: `chat_room_${requestData.user}_${requestData.servicer}` })
             io.emit('request_deleted', deletedRequest);
         } catch (error) {
             console.log('error deleting service ->', error);

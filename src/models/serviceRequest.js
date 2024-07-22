@@ -38,6 +38,22 @@ const serviceRequestSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        location: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true
+            },
+            coordinates: {
+                type: [Number],
+                required: true
+            }
+        },
+        serviceStatus: {
+            type: String,
+            enum: ['inRoute','working','complete'],
+            default: 'inRoute'
+        }
     },
     timestamps: {
         createdAt: {
@@ -72,10 +88,12 @@ const serviceRequestSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pendingServicerAcceptance', 'pendingUserConfirmation', 'confirmed', 'inProgress', 'pendingUserReview', 'completed'],
+        enum: ['pendingServicerAcceptance', 'pendingUserConfirmation', 'confirmed', 'inProgress', 'completed'],
         default: 'pendingServicerAcceptance'
     }
 })
+
+serviceRequestSchema.index({ location: '2dsphere' });
 
 
 module.exports = mongoose.model('ServiceRequest', serviceRequestSchema);
