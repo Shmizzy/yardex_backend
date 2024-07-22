@@ -8,10 +8,18 @@ const serviceRequestSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    userFcm: {
+        type: String,
+        required: false
+    },
     servicer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: false,
+    },
+    servicerFcm: {
+        type: String,
+        required: false
     },
     serviceDetails: {
         serviceType: {
@@ -31,10 +39,41 @@ const serviceRequestSchema = new mongoose.Schema({
             required: true
         },
     },
+    timestamps: {
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        statusUpdatedAt: {
+            type: Date
+        }
+    },
+    cancellation: {
+        cancelledBy: {
+            type: String,
+            enum: ['user', 'servicer'],
+            required: false
+        },
+        cancellationReason: {
+            type: String,
+            required: false
+        }
+    },
+    paymentDetails: {
+        price: {
+            type: Number,
+            required: false
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['pending', 'processed', 'failed'],
+            default: 'pending'
+        }
+    },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'completed'],
-        default: 'pending'
+        enum: ['pendingServicerAcceptance', 'pendingUserConfirmation', 'confirmed', 'inProgress', 'pendingUserReview', 'completed'],
+        default: 'pendingServicerAcceptance'
     }
 })
 

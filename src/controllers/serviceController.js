@@ -11,35 +11,34 @@ router.post('/create', async (req, res) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
         }
-        const { servicer, serviceType, preferredTime,
-            instructions, address } = req.body;
+        const { serviceType, preferredTime,
+            instructions, address } = req.body.serviceDetails;
         const newServiceRequest = await ServiceRequest.create({
             user: req.user.id,
-            servicer: servicer,
+            servicer: req.body.servicer,
+            servicerFcm: req.body.servicerFcm,
+            userFcm: req.body.userFcm,
             serviceDetails: {
                 serviceType,
                 preferredTime,
                 instructions,
                 address
             },
-            status: 'pending'
+            status: 'pendingServicerAcceptance',
         });
         const createdService = await newServiceRequest.save();
-        res.status(201).json({ message: 'Service request created!', createdService });
+        res.status(201).json({ createdService });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/confirm', async (req, res) => {
     try {
-        const servicerId = req.user.id;
-        const serviceRequest = await ServiceRequest.findById(req.params.id);
+        const serviceRequest = await ServiceRequest.findOne({ user: req.user.id });
         if (!serviceRequest)
             return res.status(404).json({ message: 'Service Request not found.' });
-        if (serviceRequest.servicer.toString() !== servicerId)
-            return res.status(400).json({ message: 'Not Authorized!' });
-        serviceRequest.status = req.body.status;
+        serviceRequest.status = 'inProgress';
         await serviceRequest.save();
         res.status(200).json({ message: 'Service request updated :)', serviceRequest })
     } catch (error) {
@@ -49,7 +48,7 @@ router.put('/:id', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const serviceRequests = await ServiceRequest.find({ servicer: req.user.id });
+        const serviceRequests = await ServiceRequest.findOne({ user: req.user.id });
 
         res.status(200).json(serviceRequests);
     } catch (error) {
@@ -57,8 +56,28 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.delete('/delete/:id', async (req, res) => {
+router.get('/status', async (req, res) => {
+    try {
+        const serviceRequest = await ServiceRequest.findOne({ user: req.user.id });
+        if (!serviceRequest)
+            return res.status(404).json({ message: 'Request not found.' });
+        if (serviceRequest.status === 'inProgress')
+            res.status(200).json({ serviceRequest });
+        else
+            res.status(201).json({ message: 'Request awaiting confirmation from servicer.' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
 
+router.delete('/delete', async (req, res) => {
+    try {
+        const serviceRequests = await ServiceRequest.findOneAndDelete({ user: req.user.id });
+        console.log('deleted', serviceRequests);
+        res.status(200).json(serviceRequests);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 });
 
 module.exports = router;

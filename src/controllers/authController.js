@@ -54,6 +54,8 @@ router.post('/login', [validatorMiddleware.loginValidator], async (req, res) => 
         let servicerProfile;
         if (user.role === 'servicer') {
             servicerProfile = await ServicerProfile.findOne({user: user._id});
+            servicerProfile.servicerFcm = req.body.servicerFcm;
+            servicerProfile.save();
             return res.status(201).json({ token, id: user._id, servicerId: servicerProfile._id});
         }
         res.status(201).json({ token, id: user._id});

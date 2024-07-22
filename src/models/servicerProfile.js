@@ -6,6 +6,10 @@ const servicerProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    servicerFcm: {
+        type: String,
+        required: false
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
