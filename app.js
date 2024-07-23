@@ -202,6 +202,23 @@ io.on('connection', (socket) => {
             console.log('error updating service progress ->', error);
         }
     });
+    socket.on('finalize_service', async (serviceData) => {
+        try {
+            const service = await ServiceRequest.findById(serviceData._id);
+            service.serviceDetails.serviceStatus = 'complete';
+            service.status = 'completed'
+            service.save();
+            io.to(`user_room${service.user}`).emit('finalized_service', service);
+            fcmService.sendNotification(
+                requestData.userFcm,
+                'Service has been completed!',
+                'Your service is complete!'
+            ).then(res => console.log('Notification sent successfully: ', res))
+                .catch(error => console.log('Error sending notification: ', error));
+        } catch (error) {
+            
+        }
+    });
     socket.on('delete_request', async (requestData) => {
         try {
             console.log('this is the data ', requestData);
