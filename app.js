@@ -14,6 +14,7 @@ const authController = require('./src/controllers/authController');
 const serviceController = require('./src/controllers/serviceController');
 const locationsControllers = require('./src/controllers/locationsController');
 const GroupChat = require('./src/models/groupChat');
+const uploadController = require('./src/cloudinary/upload');
 
 
 mongoose.connect(process.env.MONGODB_URI);
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/auth', authController);
 app.use('/service-request', serviceController);
 app.use('/markers', locationsControllers);
+app.use('/upload', uploadController);
 
 const server = http.createServer(app);
 const io = new Server(server);
@@ -192,10 +194,9 @@ io.on('connection', (socket) => {
     });
     socket.on('arrived_to_location', async (serviceData) => {
         try {
-            const service = ServiceRequest.findById(serviceData._id);
+            const service = await ServiceRequest.findById(serviceData._id);
             service.serviceDetails.serviceStatus = 'working';
             service.save();
-            console.log('this is the state right now', service.serviceDetails.serviceStatus);
             io.to(`chat_room_${serviceData.user}_${serviceData.servicer}`).emit('update_service_state', service);
         } catch (error) {
             console.log('error updating service progress ->', error);
