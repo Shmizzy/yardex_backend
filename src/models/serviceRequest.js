@@ -53,7 +53,7 @@ const serviceRequestSchema = new mongoose.Schema({
             type: String,
             enum: ['inRoute','working','complete'],
             default: 'inRoute'
-        }
+        },  
     },
     timestamps: {
         createdAt: {

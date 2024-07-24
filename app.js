@@ -188,7 +188,9 @@ io.on('connection', (socket) => {
         }
 
     });
-
+    socket.on('imageUploaded', (imageUrl) => {
+        console.log('sending ...' ,imageUrl);
+    });
     socket.on('update_request', (updateRequest) => {
         io.emit('request_updated', updateRequest)
     });
@@ -202,6 +204,10 @@ io.on('connection', (socket) => {
             console.log('error updating service progress ->', error);
         }
     });
+    socket.on('upload_image', (serviceData, imageUrl) => {
+        io.to(`user_room${serviceData.user}`).emit('image_uploaded', imageUrl);
+        console.log(`${imageUrl} has been sent to user_room${serviceData.user}`);
+    });
     socket.on('finalize_service', async (serviceData) => {
         try {
             const service = await ServiceRequest.findById(serviceData._id);
@@ -210,7 +216,7 @@ io.on('connection', (socket) => {
             service.save();
             io.to(`user_room${service.user}`).emit('finalized_service', service);
             fcmService.sendNotification(
-                requestData.userFcm,
+                service.userFcm,
                 'Service has been completed!',
                 'Your service is complete!'
             ).then(res => console.log('Notification sent successfully: ', res))

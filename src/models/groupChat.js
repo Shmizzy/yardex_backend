@@ -5,6 +5,7 @@ const groupChatSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    images: [],
     messages:[] 
 });
 
