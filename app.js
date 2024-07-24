@@ -15,7 +15,7 @@ const serviceController = require('./src/controllers/serviceController');
 const locationsControllers = require('./src/controllers/locationsController');
 const GroupChat = require('./src/models/groupChat');
 const uploadController = require('./src/cloudinary/upload');
-
+const reviewController = require('./src/controllers/reviewController');
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -29,6 +29,8 @@ app.use('/auth', authController);
 app.use('/service-request', serviceController);
 app.use('/markers', locationsControllers);
 app.use('/upload', uploadController);
+app.use('/review', reviewController);
+
 
 const server = http.createServer(app);
 const io = new Server(server);
