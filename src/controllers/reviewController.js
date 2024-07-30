@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Review = require('../models/review');
+const Servicer = require('../models/servicerProfile');
 const middleware = require('../middleware/authMiddleware');
 
 router.use(middleware.auth);
@@ -17,6 +18,25 @@ router.post('/create', async (req, res) => {
             review: req.body.review
         })
         newReview.save();
+
+        const servicer = await Servicer.findById(req.body.servicer);
+        const oldAverage = servicer.ratings.average;
+        const numberOfRatings = servicer.ratings.numberOfRatings;
+        const newRating = req.body.newRating; 
+
+        const newAverage = ((oldAverage * numberOfRatings) + newRating) / (numberOfRatings + 1);
+
+        const updatedServicer = await Servicer.findByIdAndUpdate(
+            req.body.servicer,
+            {
+                $inc: { 'ratings.numberOfRatings': 1 },
+                'ratings.average': newAverage
+            },
+            { new: true }
+        );
+
+        console.log('Updated Servicer:', updatedServicer);
+
         res.status(201).json({ newReview });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -36,3 +56,5 @@ router.get('/:servicerId/reviews', async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
+module.exports = router;

@@ -39,13 +39,15 @@ router.get('/profile/:userId', async (req, res) => {
     }
 })
 
-router.put('/edit/:id', isServicer, async (req, res) => {
+router.post('/edit/:id', isServicer, async (req, res) => {
     try {
         const editedMarker = await Marker.findOneAndUpdate(
-            { _id: req.params.id, servicer: req.user.id },
+            {  servicer: req.user.id },
             {
-                location: req.body.location,
-                status: req.body.status,
+                location: {
+                    type: 'Point',
+                    coordinates: req.body.coordinates
+                }
             },
             { new: true }
         );
