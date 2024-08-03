@@ -4,9 +4,9 @@ const Review = require('../models/review');
 const Servicer = require('../models/servicerProfile');
 const middleware = require('../middleware/authMiddleware');
 
-router.use(middleware.auth);
 
-router.post('/create', async (req, res) => {
+
+router.post('/create', (middleware.auth), async (req, res) => {
     try {
         if (!req.user)
             return res.status(401).json({ message: 'Authentication required' });
@@ -22,7 +22,7 @@ router.post('/create', async (req, res) => {
         const servicer = await Servicer.findById(req.body.servicer);
         const oldAverage = servicer.ratings.average;
         const numberOfRatings = servicer.ratings.numberOfRatings;
-        const newRating = req.body.newRating; 
+        const newRating = req.body.rating;
 
         const newAverage = ((oldAverage * numberOfRatings) + newRating) / (numberOfRatings + 1);
 
@@ -45,8 +45,6 @@ router.post('/create', async (req, res) => {
 
 router.get('/:servicerId/reviews', async (req, res) => {
     try {
-        if (!req.user)
-            return res.status(401).json({ message: 'Authentication required' });
 
         const reviews = await Review.find({ servicer: req.params.servicerId });
         if (!reviews)
