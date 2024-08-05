@@ -14,6 +14,7 @@ const authController = require('./src/controllers/authController');
 const serviceController = require('./src/controllers/serviceController');
 const locationsControllers = require('./src/controllers/locationsController');
 const GroupChat = require('./src/models/groupChat');
+const pfpController = require('./src/controllers/pfpController');
 const uploadController = require('./src/cloudinary/upload');
 const reviewController = require('./src/controllers/reviewController');
 
@@ -26,6 +27,7 @@ mongoose.connection.on('connected', () => {
 app.use(cors());
 app.use(express.json());
 app.use('/auth', authController);
+app.use('/pfp', pfpController);
 app.use('/service-request', serviceController);
 app.use('/markers', locationsControllers);
 app.use('/upload', uploadController);
