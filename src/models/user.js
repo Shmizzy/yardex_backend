@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
+    pfp: { type: String, required: false },
     password: { type: String, required: true },
     role: {
         type: String,
@@ -13,12 +14,12 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
-      this.password = await bcrypt.hash(this.password, 8);
+        this.password = await bcrypt.hash(this.password, 8);
     }
     next();
-});  
+});
 
 userSchema.set('toJSON', {
     transform: (document, returnedObject) => {
