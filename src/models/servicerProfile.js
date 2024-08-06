@@ -6,6 +6,7 @@ const servicerProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    pfp: { type: String, required: false },
     servicerFcm: {
         type: String,
         required: false
