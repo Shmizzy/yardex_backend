@@ -39,6 +39,18 @@ router.get('/profile', (middleware.auth), async (req, res) => {
 
     }
 });
+router.get('/profile/servicer', (middleware.isServicer), async (req, res) => {
+    try {
+        if (!req.user)
+            return res.status(401).json({ message: 'Authentication required' });
+        const profile = await Servicer.findById(req.user.id);
+        res.status(200).json({ profile });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+
+    }
+});
+
 
 
 module.exports = router;
