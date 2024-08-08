@@ -14,6 +14,7 @@ const authController = require('./src/controllers/authController');
 const serviceController = require('./src/controllers/serviceController');
 const locationsControllers = require('./src/controllers/locationsController');
 const GroupChat = require('./src/models/groupChat');
+const Message = require('./src/models/chatMessage');
 const pfpController = require('./src/controllers/pfpController');
 const uploadController = require('./src/cloudinary/upload');
 const reviewController = require('./src/controllers/reviewController');
@@ -176,8 +177,10 @@ io.on('connection', (socket) => {
         try {
             const { sender, message, chatRoomId } = chatData;
             const newMessage = {
-                sender, message, chatRoomId
+                sender, message, chatRoomId,
+                timestamp : Date.now() 
             };
+            
             const groupChat = await GroupChat.findOneAndUpdate({ chatRoomId: chatRoomId }, { $push: { messages: newMessage } },
                 { new: true });
             groupChat.save();
