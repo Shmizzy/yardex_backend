@@ -175,10 +175,10 @@ io.on('connection', (socket) => {
     });
     socket.on('chat_message', async (chatData) => {
         try {
-            const { sender, message, chatRoomId } = chatData;
+            const { sender, message, chatRoomId, timestamp } = chatData;
             const newMessage = {
                 sender, message, chatRoomId,
-                timestamp : Date.now() 
+                timestamp
             };
             
             const groupChat = await GroupChat.findOneAndUpdate({ chatRoomId: chatRoomId }, { $push: { messages: newMessage } },
