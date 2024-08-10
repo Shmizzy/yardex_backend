@@ -195,7 +195,7 @@ io.on('connection', (socket) => {
         }
 
     });
-    
+
     socket.on('update_request', (updateRequest) => {
         io.emit('request_updated', updateRequest)
     });
@@ -236,7 +236,7 @@ io.on('connection', (socket) => {
             service.serviceDetails.serviceStatus = 'complete';
             service.status = 'completed'
             service.save();
-            io.to(`user_room${serviceData.user}`).emit('finalized_service', service);
+            io.to(`chat_room_${serviceData.user}_${serviceData.servicer}`).emit('update_service_state', service);
             fcmService.sendNotification(
                 service.userFcm,
                 'Service has been completed!',
@@ -244,7 +244,7 @@ io.on('connection', (socket) => {
             ).then(res => console.log('Notification sent successfully: ', res))
                 .catch(error => console.log('Error sending notification: ', error));
         } catch (error) {
-
+            console.log('error finalizing service->', error);
         }
     });
     socket.on('delete_request', async (requestData) => {
