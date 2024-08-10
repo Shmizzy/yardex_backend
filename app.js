@@ -225,7 +225,7 @@ io.on('connection', (socket) => {
             ).then(res => console.log('Notification sent successfully: ', res))
                 .catch(error => console.log('Error sending notification: ', error));
         } catch (error) {
-
+            console.log('error uploading image ->', error);
         }
     });
     socket.on('finalize_service', async (serviceData) => {
