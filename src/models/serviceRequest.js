@@ -55,6 +55,7 @@ const serviceRequestSchema = new mongoose.Schema({
             default: 'inRoute'
         },  
     },
+    images: [],
     timestamps: {
         createdAt: {
             type: Date,

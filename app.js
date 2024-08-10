@@ -215,8 +215,10 @@ io.on('connection', (socket) => {
             console.log(`${imageUrl} has been sent to user_room${serviceData.user}`);
             const service = await ServiceRequest.findById(serviceData._id);
             service.serviceDetails.serviceStatus = 'imagesUploaded';
+            service.images = [...service.images, imageUrl];
             service.save();
             io.to(`user_room${serviceData.user}`).emit('image_uploaded', imageUrl);
+
             io.to(`chat_room_${serviceData.user}_${serviceData.servicer}`).emit('update_service_state', service);
             fcmService.sendNotification(
                 service.userFcm,
