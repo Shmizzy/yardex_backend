@@ -51,7 +51,7 @@ const serviceRequestSchema = new mongoose.Schema({
         },
         serviceStatus: {
             type: String,
-            enum: ['inRoute','working','complete'],
+            enum: ['inRoute','working','imagesUploaded','complete'],
             default: 'inRoute'
         },  
     },

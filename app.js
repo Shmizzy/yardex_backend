@@ -180,7 +180,7 @@ io.on('connection', (socket) => {
                 sender, message, chatRoomId,
                 timestamp
             };
-            
+
             const groupChat = await GroupChat.findOneAndUpdate({ chatRoomId: chatRoomId }, { $push: { messages: newMessage } },
                 { new: true });
             groupChat.save();
@@ -195,9 +195,7 @@ io.on('connection', (socket) => {
         }
 
     });
-    socket.on('imageUploaded', (imageUrl) => {
-        console.log('sending ...' ,imageUrl);
-    });
+    
     socket.on('update_request', (updateRequest) => {
         io.emit('request_updated', updateRequest)
     });
@@ -211,9 +209,23 @@ io.on('connection', (socket) => {
             console.log('error updating service progress ->', error);
         }
     });
-    socket.on('upload_image', (serviceData, imageUrl) => {
-        io.to(`user_room${serviceData.user}`).emit('image_uploaded', imageUrl);
-        console.log(`${imageUrl} has been sent to user_room${serviceData.user}`);
+    socket.on('upload_image', async (serviceData, imageUrl) => {
+
+        try {
+            console.log(`${imageUrl} has been sent to user_room${serviceData.user}`);
+            const service = await ServiceRequest.findById(serviceData._id);
+            service.serviceDetails.serviceStatus = 'imagesUploaded';
+            service.save();
+            io.to(`user_room${serviceData.user}`).emit('image_uploaded', imageUrl);
+            fcmService.sendNotification(
+                service.userFcm,
+                'Service images has been uploaded!',
+                'Your service is complete!'
+            ).then(res => console.log('Notification sent successfully: ', res))
+                .catch(error => console.log('Error sending notification: ', error));
+        } catch (error) {
+
+        }
     });
     socket.on('finalize_service', async (serviceData) => {
         try {
@@ -229,7 +241,7 @@ io.on('connection', (socket) => {
             ).then(res => console.log('Notification sent successfully: ', res))
                 .catch(error => console.log('Error sending notification: ', error));
         } catch (error) {
-            
+
         }
     });
     socket.on('delete_request', async (requestData) => {
