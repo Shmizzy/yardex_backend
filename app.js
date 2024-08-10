@@ -236,7 +236,7 @@ io.on('connection', (socket) => {
             service.serviceDetails.serviceStatus = 'complete';
             service.status = 'completed'
             service.save();
-            io.to(`user_room${service.user}`).emit('finalized_service', service);
+            io.to(`user_room${serviceData.user}`).emit('finalized_service', service);
             fcmService.sendNotification(
                 service.userFcm,
                 'Service has been completed!',
