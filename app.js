@@ -217,6 +217,7 @@ io.on('connection', (socket) => {
             service.serviceDetails.serviceStatus = 'imagesUploaded';
             service.save();
             io.to(`user_room${serviceData.user}`).emit('image_uploaded', imageUrl);
+            io.to(`chat_room_${serviceData.user}_${serviceData.servicer}`).emit('update_service_state', service);
             fcmService.sendNotification(
                 service.userFcm,
                 'Service images has been uploaded!',
