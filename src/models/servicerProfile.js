@@ -19,12 +19,8 @@ const servicerProfileSchema = new mongoose.Schema({
     },
     bio: {
         type: String,
-        required: true
+        required: false
     },
-    servicesOffered: [{
-        type: String,
-        required: true
-    }],
     ratings: {
         average: {
             type: Number,
@@ -39,11 +35,11 @@ const servicerProfileSchema = new mongoose.Schema({
         type: {
             type: String,
             enum: ['Point'],
-            required: true
+            required: false
         },
         coordinates: {
             type: [Number],
-            required: true
+            required: false
         }
     },
     status: {

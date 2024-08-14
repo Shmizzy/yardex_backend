@@ -15,4 +15,5 @@ const sendNotification = (token, title, body) => {
     return admin.messaging().send(message);
 };
 
-module.exports = { sendNotification, admin };
+module.exports = admin;
+module.exports.sendNotification = sendNotification;
