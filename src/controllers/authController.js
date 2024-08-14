@@ -34,9 +34,10 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
             const token = jwt.sign({ user: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
             const savedServicer = await servicerProfile.save();
             res.status(201).json({ token, servicerId: savedServicer._id });
+        } else {
+            const token = jwt.sign({ user: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.status(201).json({ token, id: savedUser._id });
         }
-        const token = jwt.sign({ user: { id: newUser._id } }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token, id: savedUser._id });
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
