@@ -14,7 +14,7 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
     const errors = validationResult(req);
     if (!errors) return res.status(400).json({ errors });
 
-    const { phoneNumber, idToken, username, email, password, role, bio, servicesOffered, location, servicerStatus } = req.body;
+    const { phoneNumber, idToken, username, email, password, role, servicerStatus } = req.body;
 
     try {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -30,10 +30,6 @@ router.post('/register', [validatorMiddleware.registerValidator], async (req, re
             servicerProfile = await ServicerProfile.create({
                 servicerName: username,
                 user: savedUser._id,
-                bio,
-                servicesOffered,
-                location,
-                servicerStatus
             });
             const savedServicer = await servicerProfile.save();
         }
