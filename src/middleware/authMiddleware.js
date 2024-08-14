@@ -1,6 +1,7 @@
 const { body } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const admin = require('../fcm/fcmService');
 
 const auth = async (req, res, next) => {
   const token = req.header('x-auth-token');
@@ -27,6 +28,27 @@ const isServicer = async (req, res, next) => {
   }
 }
 
+const verifyIdToken = async (req, res, next) => {
+  const idToken = req.header('Authorization')?.split('Bearer ')[1];
+  if (!idToken) return res.status(401).json({ msg: 'No token, authorization denied' });
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.uid = decodedToken.uid;
+    next();
+  } catch (error) {
+    res.status(401).json({ msg: 'Invalid ID token' });
+  }
+};
+
+const combinedAuth = async (req, res, next) => {
+  const authHeader = req.header('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    await verifyIdToken(req, res, next);
+  } else {
+    await auth(req, res, next);
+  }
+};
 
 
 const registerValidator = [
@@ -42,4 +64,4 @@ const loginValidator = [
 
 
 
-module.exports = { registerValidator, loginValidator, auth, isServicer };
+module.exports = { registerValidator, loginValidator, auth, isServicer, combinedAuth };
